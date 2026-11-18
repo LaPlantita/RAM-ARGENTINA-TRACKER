@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor RAM Argentina: DDR4 vs DDR5 (1x8GB y 1x16GB)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        code, pre { font-family: 'JetBrains Mono', monospace; }
+        pre::-webkit-scrollbar { height: 8px; width: 8px; }
+        pre::-webkit-scrollbar-track { background: #0f172a; }
+        pre::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        pre::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-indigo-500 selection:text-white">
+
+    <!-- Notificación Toast al copiar código -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2 bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transition-all">
+        <i class="fa-solid fa-check-circle"></i>
+        <span id="toast-msg">Código copiado al portapapeles</span>
+    </div>
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/85 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600/20 border border-indigo-500/30 p-2.5 rounded-xl text-indigo-400">
+                    <i class="fa-solid fa-memory text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">Monitor RAM Argentina (1x8GB y 1x16GB UDIMM)</h1>
+                    <p class="text-xs text-slate-400">Relevamiento real en tiendas AR (2022–2026) y proyección (2027–2028)</p>
+                </div>
+            </div>
+
+            <!-- Pestañas de Navegación y Estado -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800">
+                    <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-chart-line"></i> Panel y Gráfico
+                    </button>
+                    <button onclick="switchTab('github')" id="tab-btn-github" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                        <i class="fa-brands fa-github"></i> Automatizar Gratis (GitHub)
+                    </button>
+                </div>
+
+                <span id="last-updated-badge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Act: Nov 2026
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- VISTA 1: PANEL Y GRÁFICO -->
+    <main id="view-dashboard" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
+
+        <!-- Tarjetas KPI (4 Módulos Individuales) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1: DDR4 8GB -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-violet-500/40 transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">DDR4 8GB (1x8GB)</span>
+                    <span class="text-violet-400 text-xs font-semibold bg-violet-500/10 px-2 py-0.5 rounded">3200 MHz</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span id="kpi-ddr4-8" class="text-2xl font-bold text-white">$145.000</span>
+                    <span class="text-xs text-slate-500 currency-label">ARS</span>
+                </div>
+                <p id="kpi-ddr4-8-sub" class="text-xs text-slate-400 mt-2">Ref: ~$104 USD • Fin de ciclo</p>
+            </div>
+
+            <!-- KPI 2: DDR5 8GB -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-amber-500/40 transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">DDR5 8GB (1x8GB)</span>
+                    <span class="text-amber-400 text-xs font-semibold bg-amber-500/10 px-2 py-0.5 rounded">4800–5600 MHz</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span id="kpi-ddr5-8" class="text-2xl font-bold text-white">$220.000</span>
+                    <span class="text-xs text-slate-500 currency-label">ARS</span>
+                </div>
+                <p id="kpi-ddr5-8-sub" class="text-xs text-slate-400 mt-2">Ref: ~$157 USD • Bajo volumen</p>
+            </div>
+
+            <!-- KPI 3: DDR4 16GB -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-sky-500/40 transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">DDR4 16GB (1x16GB)</span>
+                    <span class="text-sky-400 text-xs font-semibold bg-sky-500/10 px-2 py-0.5 rounded">3200 MHz</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span id="kpi-ddr4-16" class="text-2xl font-bold text-white">$410.000</span>
+                    <span class="text-xs text-slate-500 currency-label">ARS</span>
+                </div>
+                <p id="kpi-ddr4-16-sub" class="text-xs text-slate-400 mt-2">Ref: ~$293 USD • Escasez global</p>
+            </div>
+
+            <!-- KPI 4: DDR5 16GB -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm hover:border-emerald-500/40 transition">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">DDR5 16GB (1x16GB)</span>
+                    <span class="text-emerald-400 text-xs font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">5600–6000 MHz</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                    <span id="kpi-ddr5-16" class="text-2xl font-bold text-white">$480.000</span>
+                    <span class="text-xs text-slate-500 currency-label">ARS</span>
+                </div>
+                <p id="kpi-ddr5-16-sub" class="text-xs text-slate-400 mt-2">Ref: ~$343 USD • Estándar actual</p>
+            </div>
+        </div>
+
+        <!-- Sección Principal del Gráfico -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Evolución Histórica y Proyección por Capacidad (2022 – 2028)</h2>
+                    <p class="text-xs text-slate-400">Hacé clic en las etiquetas de colores para ocultar o comparar series • Línea punteada = Proyección</p>
+                </div>
+
+                <!-- Selector de Moneda y Referencia Dólar -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-xs text-slate-400 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+                        Dólar Ref. Nov 2026: <strong id="usd-rate-display" class="text-slate-200">$1.400 ARS</strong>
+                    </span>
+
+                    <div class="inline-flex rounded-lg bg-slate-950 p-1 border border-slate-800">
+                        <button onclick="setCurrency('ARS')" id="btn-ars" class="px-3.5 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white transition">
+                            ARS ($)
+                        </button>
+                        <button onclick="setCurrency('USD')" id="btn-usd" class="px-3.5 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition">
+                            USD (US$)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leyenda Interactiva Personalizada -->
+            <div id="custom-legend" class="flex flex-wrap items-center gap-2.5 mb-5"></div>
+
+            <!-- Lienzo Responsive -->
+            <div class="relative h-[380px] sm:h-[440px] w-full">
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabla Comparativa de Tiendas Reales AR -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+            <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h3 class="text-base font-bold text-white">Muestra de Precios en Tiendas Especializadas de Argentina</h3>
+                    <p class="text-xs text-slate-400">Valores relevados en comercios de hardware locales (excluye MercadoLibre, kits 2x8/2x16 y SODIMM)</p>
+                </div>
+                <span class="text-xs text-slate-400 bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">
+                    Módulos sueltos: <code class="text-violet-400">1x8GB</code> y <code class="text-emerald-400">1x16GB</code>
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950/70 text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800">
+                            <th class="py-3.5 px-5 font-semibold">Tienda Hardware AR</th>
+                            <th class="py-3.5 px-5 font-semibold text-right text-violet-400">DDR4 8GB</th>
+                            <th class="py-3.5 px-5 font-semibold text-right text-amber-400">DDR5 8GB</th>
+                            <th class="py-3.5 px-5 font-semibold text-right text-sky-400">DDR4 16GB</th>
+                            <th class="py-3.5 px-5 font-semibold text-right text-emerald-400">DDR5 16GB</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stores-table-body" class="divide-y divide-slate-800/70 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Análisis Contextual Detallado -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-3 text-violet-400">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
+                    <h3 class="font-bold text-white text-base">Escasez y Fin de Ciclo en DDR4</h3>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Los fabricantes mundiales (Samsung, SK Hynix, Micron) redujeron drásticamente sus líneas DDR4 para destinar obleas a memorias HBM de IA y DDR5. En Argentina esto sostiene precios altos por reposición limitada: un módulo DDR4 de 16GB (~$410k ARS) ya cuesta apenas un 15% menos que uno DDR5 de 16GB (~$480k ARS).
+                </p>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-3 text-amber-400">
+                    <i class="fa-solid fa-scale-unbalanced text-lg"></i>
+                    <h3 class="font-bold text-white text-base">La Trampa de Precio/GB en DDR5 8GB</h3>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Por arquitectura interna (subcanales duales de 32-bit), el módulo base estándar de DDR5 es de 16GB. Los sticks sueltos de <strong>DDR5 8GB (~$220.000 ARS)</strong> tienen baja producción y menor ancho de banda efectivo por banco, resultando en un costo por gigabyte muy superior frente al módulo de 16GB.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-3 text-emerald-400">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                    <h3 class="font-bold text-white text-base">Inflación Local y Proyección 2027–2028</h3>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Tras los saltos devaluatorios de 2023–2024 y la posterior normalización aduanera e inflacionaria, los precios reflejan el ciclo tecnológico global: hacia 2028 se proyecta que <strong>DDR5 16GB</strong> descienda hacia <strong>~$390.000 ARS (~US$245)</strong>, cruzándose por debajo de <strong>DDR4 16GB (~$435.000 ARS)</strong>.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- VISTA 2: AUTOMATIZACIÓN GRATUITA EN GITHUB -->
+    <section id="view-github" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8 hidden">
+        
+        <div class="bg-gradient-to-r from-indigo-950/60 to-slate-900 border border-indigo-500/30 rounded-2xl p-6">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2.5">
+                <i class="fa-brands fa-github text-2xl text-indigo-400"></i>
+                Automatización Diaria Gratis con GitHub Pages + GitHub Actions
+            </h2>
+            <p class="text-sm text-slate-300 mt-2 leading-relaxed">
+                Subí este HTML como <code class="bg-slate-950 px-1.5 py-0.5 rounded text-indigo-300">index.html</code> junto con los 3 archivos de abajo en un repositorio público de GitHub. Todos los días a las 9:00 AM (hora Argentina), el bot consultará tiendas reales de computación (sin MercadoLibre), calculará los promedios de <strong>1x8GB</strong> y <strong>1x16GB</strong> y actualizará el gráfico automáticamente.
+            </p>
+        </div>
+
+        <!-- Archivo 1: datos.json -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="bg-slate-950 px-5 py-3.5 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-code text-amber-400"></i>
+                    <span class="font-mono text-sm font-semibold text-white">datos.json</span>
+                    <span class="text-xs text-slate-500 hidden sm:inline">— Almacena las 4 series (8GB y 16GB en DDR4/DDR5)</span>
+                </div>
+                <button onclick="copyCode('code-json', 'datos.json copiado al portapapeles')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar código
+                </button>
+            </div>
+            <pre id="code-json" class="p-5 text-xs text-slate-300 overflow-x-auto leading-relaxed">{
+  "ultima_actualizacion": "2026-11-18",
+  "dolar_referencia": 1400,
+  "actual_promedio_ars": {
+    "ddr4_8gb": 145000,
+    "ddr5_8gb": 220000,
+    "ddr4_16gb": 410000,
+    "ddr5_16gb": 480000
+  },
+  "historico": {
+    "labels": ["2022", "2023", "2024", "2025", "2026", "2027 (Proy.)", "2028 (Proy.)"],
+    "ars_ddr4_8gb":  [12500,  38000,  95000, 120000, 145000, 158000, 170000],
+    "ars_ddr5_8gb":  [45000,  98000, 165000, 195000, 220000, 200000, 185000],
+    "ars_ddr4_16gb": [26000,  82000, 245000, 330000, 410000, 425000, 435000],
+    "ars_ddr5_16gb": [88000, 210000, 385000, 435000, 480000, 430000, 390000],
+    "usd_ddr4_8gb":  [42,  52,  84,  96, 104, 108, 112],
+    "usd_ddr5_8gb":  [150, 134, 146, 156, 157, 136, 120],
+    "usd_ddr4_16gb": [88, 112, 216, 264, 293, 290, 285],
+    "usd_ddr5_16gb": [295, 285, 340, 348, 343, 292, 245]
+  },
+  "tiendas": [
+    {
+      "nombre": "CompraGamer",
+      "ddr4_8gb": 135000,
+      "ddr5_8gb": 205000,
+      "ddr4_16gb": 389000,
+      "ddr5_16gb": 455000
+    },
+    {
+      "nombre": "FullH4rd",
+      "ddr4_8gb": 144000,
+      "ddr5_8gb": 218000,
+      "ddr4_16gb": 405000,
+      "ddr5_16gb": 475000
+    },
+    {
+      "nombre": "Gezatek",
+      "ddr4_8gb": 148000,
+      "ddr5_8gb": 225000,
+      "ddr4_16gb": 418000,
+      "ddr5_16gb": 488000
+    },
+    {
+      "nombre": "Maximus Gaming Hardware",
+      "ddr4_8gb": 153000,
+      "ddr5_8gb": 232000,
+      "ddr4_16gb": 428000,
+      "ddr5_16gb": 502000
+    }
+  ]
+}</pre>
+        </div>
+
+        <!-- Archivo 2: actualizar.py -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="bg-slate-950 px-5 py-3.5 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-brands fa-python text-sky-400"></i>
+                    <span class="font-mono text-sm font-semibold text-white">actualizar.py</span>
+                    <span class="text-xs text-slate-500 hidden sm:inline">— Clasificador de módulos 1x8GB y 1x16GB UDIMM + Dólar API</span>
+                </div>
+                <button onclick="copyCode('code-py', 'actualizar.py copiado al portapapeles')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar código
+                </button>
+            </div>
+            <pre id="code-py" class="p-5 text-xs text-slate-300 overflow-x-auto leading-relaxed">import json
+import re
+import statistics
+from datetime import datetime
+import requests
+from bs4 import BeautifulSoup
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+    "Accept-Language": "es-AR,es;q=0.9"
+}
+
+def obtener_dolar_blue():
+    """Consulta cotización de venta desde dolarapi.com."""
+    try:
+        resp = requests.get("https://dolarapi.com/v1/dolares/blue", timeout=10)
+        if resp.status_code == 200:
+            return float(resp.json().get("venta", 1400))
+    except Exception as e:
+        print(f"Error consultando dolarapi: {e}")
+    return None
+
+def clasificar_modulo_escritorio(titulo: str):
+    """
+    Devuelve 'ddr4_8gb', 'ddr5_8gb', 'ddr4_16gb' o 'ddr5_16gb' si es un módulo individual
+    UDIMM de escritorio. Descarta kits (2x8, 2x16) y memorias de notebook (SODIMM).
+    """
+    t = titulo.lower()
+    excluidos = ["2x8", "2 x 8", "2x16", "2 x 16", "2x32", "kit", "sodimm", "so-dimm", "notebook", "laptop", "ecc"]
+    if any(palabra in t for palabra in excluidos):
+        return None
+
+    es_ddr4 = "ddr4" in t
+    es_ddr5 = "ddr5" in t
+    if not (es_ddr4 or es_ddr5):
+        return None
+
+    es_8gb = bool(re.search(r"\b8\s*gb\b", t))
+    es_16gb = bool(re.search(r"\b16\s*gb\b", t))
+
+    if es_ddr4 and es_8gb:
+        return "ddr4_8gb"
+    if es_ddr5 and es_8gb:
+        return "ddr5_8gb"
+    if es_ddr4 and es_16gb:
+        return "ddr4_16gb"
+    if es_ddr5 and es_16gb:
+        return "ddr5_16gb"
+    return None
+
+def limpiar_precio(texto: str) -> int:
+    solo_nums = re.sub(r"[^\d,]", "", texto).split(",")[0]
+    return int(solo_nums) if solo_nums.isdigit() else 0
+
+def scrapear_tiendas():
+    urls = [
+        "https://www.maximus.com.ar/Productos/Memorias-RAM/DDR4/maximus.aspx",
+        "https://www.maximus.com.ar/Productos/Memorias-RAM/DDR5/maximus.aspx",
+        "https://www.fullh4rd.com.ar/cat/c/18-memorias-ram",
+        "https://www.gezatek.com.ar/tienda/memorias-ram/",
+        "https://compragamer.com/productos?cate=15"
+    ]
+    recolectado = {"ddr4_8gb": [], "ddr5_8gb": [], "ddr4_16gb": [], "ddr5_16gb": []}
+    rangos_validos = {
+        "ddr4_8gb": (70000, 260000),
+        "ddr5_8gb": (110000, 380000),
+        "ddr4_16gb": (180000, 620000),
+        "ddr5_16gb": (260000, 780000),
+    }
+
+    for url in urls:
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=15)
+            if r.status_code != 200:
+                continue
+            soup = BeautifulSoup(r.text, "html.parser")
+            for card in soup.find_all(["div", "article", "li"], class_=re.compile(r"(product|item|card)", re.I)):
+                texto = card.get_text(" ", strip=True)
+                categoria = clasificar_modulo_escritorio(texto)
+                if categoria:
+                    match_precio = re.search(r"\$\s*([\d\.]{5,10})", texto)
+                    if match_precio:
+                        valor = limpiar_precio(match_precio.group(1))
+                        min_p, max_p = rangos_validos[categoria]
+                        if min_p <= valor <= max_p:
+                            recolectado[categoria].append(valor)
+        except Exception as e:
+            print(f"Error en {url}: {e}")
+    return recolectado
+
+def main():
+    with open("datos.json", "r", encoding="utf-8") as f:
+        datos = json.load(f)
+
+    dolar_hoy = obtener_dolar_blue()
+    if dolar_hoy:
+        datos["dolar_referencia"] = int(dolar_hoy)
+
+    muestras = scrapear_tiendas()
+    dolar = datos["dolar_referencia"]
+
+    for cat in ["ddr4_8gb", "ddr5_8gb", "ddr4_16gb", "ddr5_16gb"]:
+        valores = list(set(muestras[cat]))
+        if valores:
+            mediana = int(statistics.median(valores))
+            datos["actual_promedio_ars"][cat] = mediana
+            datos["historico"][f"ars_{cat}"][4] = mediana
+            datos["historico"][f"usd_{cat}"][4] = round(mediana / dolar)
+
+    datos["ultima_actualizacion"] = datetime.now().strftime("%Y-%m-%d")
+
+    with open("datos.json", "w", encoding="utf-8") as f:
+        json.dump(datos, f, indent=2, ensure_ascii=False)
+    print("datos.json actualizado correctamente.")
+
+if __name__ == "__main__":
+    main()
+</pre>
+        </div>
+
+        <!-- Archivo 3: .github/workflows/cron.yml -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+            <div class="bg-slate-950 px-5 py-3.5 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i>
+                    <span class="font-mono text-sm font-semibold text-white">.github/workflows/cron.yml</span>
+                    <span class="text-xs text-slate-500 hidden sm:inline">— Ejecución diaria automática (09:00 AM ART)</span>
+                </div>
+                <button onclick="copyCode('code-yml', 'cron.yml copiado al portapapeles')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar código
+                </button>
+            </div>
+            <pre id="code-yml" class="p-5 text-xs text-slate-300 overflow-x-auto leading-relaxed">name: Actualizar Precios RAM Argentina
+
+on:
+  schedule:
+    # Todos los días a las 09:00 AM hora Argentina (12:00 UTC)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar-datos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install requests beautifulsoup4
+
+      - name: Ejecutar scraper de tiendas AR
+        run: python actualizar.py
+
+      - name: Confirmar cambios en datos.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add datos.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Actualización diaria de precios RAM AR (8GB y 16GB)" && git push)
+</pre>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/40 py-5 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p>Monitor de precios de memoria RAM en Argentina (CompraGamer, FullH4rd, Gezatek, Maximus Gaming Hardware) • Módulos individuales UDIMM 1x8GB y 1x16GB.</p>
+        </div>
+    </footer>
+
+    <!-- Lógica del Dashboard -->
+    <script>
+        const FALLBACK_DATA = {
+            ultima_actualizacion: "2026-11-18",
+            dolar_referencia: 1400,
+            actual_promedio_ars: {
+                ddr4_8gb: 145000,
+                ddr5_8gb: 220000,
+                ddr4_16gb: 410000,
+                ddr5_16gb: 480000
+            },
+            historico: {
+                labels: ['2022', '2023', '2024', '2025', '2026', '2027 (Proy.)', '2028 (Proy.)'],
+                ars_ddr4_8gb:  [12500,  38000,  95000, 120000, 145000, 158000, 170000],
+                ars_ddr5_8gb:  [45000,  98000, 165000, 195000, 220000, 200000, 185000],
+                ars_ddr4_16gb: [26000,  82000, 245000, 330000, 410000, 425000, 435000],
+                ars_ddr5_16gb: [88000, 210000, 385000, 435000, 480000, 430000, 390000],
+                usd_ddr4_8gb:  [42,  52,  84,  96, 104, 108, 112],
+                usd_ddr5_8gb:  [150, 134, 146, 156, 157, 136, 120],
+                usd_ddr4_16gb: [88, 112, 216, 264, 293, 290, 285],
+                usd_ddr5_16gb: [295, 285, 340, 348, 343, 292, 245]
+            },
+            tiendas: [
+                { nombre: "CompraGamer", ddr4_8gb: 135000, ddr5_8gb: 205000, ddr4_16gb: 389000, ddr5_16gb: 455000 },
+                { nombre: "FullH4rd", ddr4_8gb: 144000, ddr5_8gb: 218000, ddr4_16gb: 405000, ddr5_16gb: 475000 },
+                { nombre: "Gezatek", ddr4_8gb: 148000, ddr5_8gb: 225000, ddr4_16gb: 418000, ddr5_16gb: 488000 },
+                { nombre: "Maximus Gaming Hardware", ddr4_8gb: 153000, ddr5_8gb: 232000, ddr4_16gb: 428000, ddr5_16gb: 502000 }
+            ]
+        };
+
+        const MACRO_NOTES = {
+            0: "2022: Restricciones SIRA y lanzamiento inicial de DDR5 con sobreprecio.",
+            1: "2023: Alta inflación, brecha cambiaria y devaluación de diciembre.",
+            2: "2024: Sinceramiento de precios locales y primeras bajas globales de DDR5.",
+            3: "2025: Recorte global de producción DDR4 por demanda de memoria IA.",
+            4: "2026 (Actual): Escasez de stock DDR4 achica la brecha frente a DDR5.",
+            5: "2027 (Proy.): Consolidación de DDR5 como estándar masivo de entrada.",
+            6: "2028 (Proy.): Convergencia y cruce de precios por fin de ciclo DDR4."
+        };
+
+        let appData = FALLBACK_DATA;
+        let currentCurrency = 'ARS';
+        let priceChart = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch('./datos.json?t=' + new Date().getTime());
+                if (response.ok) {
+                    const json = await response.json();
+                    if (json && json.historico && json.historico.ars_ddr4_8gb) {
+                        appData = json;
+                    }
+                }
+            } catch (e) {
+                // Usa FALLBACK_DATA si se abre localmente sin servidor HTTP
+            }
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const usdRate = appData.dolar_referencia || 1400;
+            document.getElementById('last-updated-badge').innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Act: ${appData.ultima_actualizacion}
+            `;
+            document.getElementById('usd-rate-display').innerText = `$${usdRate.toLocaleString('es-AR')} ARS`;
+
+            updateKPIValues();
+            renderStoresTable();
+            initOrUpdateChart();
+        }
+
+        function updateKPIValues() {
+            const p = appData.actual_promedio_ars;
+            const usdRate = appData.dolar_referencia || 1400;
+            const labelsCurrency = document.querySelectorAll('.currency-label');
+
+            if (currentCurrency === 'ARS') {
+                labelsCurrency.forEach(el => el.innerText = 'ARS');
+                document.getElementById('kpi-ddr4-8').innerText = '$' + p.ddr4_8gb.toLocaleString('es-AR');
+                document.getElementById('kpi-ddr5-8').innerText = '$' + p.ddr5_8gb.toLocaleString('es-AR');
+                document.getElementById('kpi-ddr4-16').innerText = '$' + p.ddr4_16gb.toLocaleString('es-AR');
+                document.getElementById('kpi-ddr5-16').innerText = '$' + p.ddr5_16gb.toLocaleString('es-AR');
+
+                document.getElementById('kpi-ddr4-8-sub').innerText = `Ref: ~$${Math.round(p.ddr4_8gb / usdRate)} USD • Fin de ciclo`;
+                document.getElementById('kpi-ddr5-8-sub').innerText = `Ref: ~$${Math.round(p.ddr5_8gb / usdRate)} USD • Bajo volumen`;
+                document.getElementById('kpi-ddr4-16-sub').innerText = `Ref: ~$${Math.round(p.ddr4_16gb / usdRate)} USD • Escasez global`;
+                document.getElementById('kpi-ddr5-16-sub').innerText = `Ref: ~$${Math.round(p.ddr5_16gb / usdRate)} USD • Estándar actual`;
+            } else {
+                labelsCurrency.forEach(el => el.innerText = 'USD');
+                document.getElementById('kpi-ddr4-8').innerText = 'US$' + Math.round(p.ddr4_8gb / usdRate);
+                document.getElementById('kpi-ddr5-8').innerText = 'US$' + Math.round(p.ddr5_8gb / usdRate);
+                document.getElementById('kpi-ddr4-16').innerText = 'US$' + Math.round(p.ddr4_16gb / usdRate);
+                document.getElementById('kpi-ddr5-16').innerText = 'US$' + Math.round(p.ddr5_16gb / usdRate);
+
+                document.getElementById('kpi-ddr4-8-sub').innerText = `Ref: $${p.ddr4_8gb.toLocaleString('es-AR')} ARS`;
+                document.getElementById('kpi-ddr5-8-sub').innerText = `Ref: $${p.ddr5_8gb.toLocaleString('es-AR')} ARS`;
+                document.getElementById('kpi-ddr4-16-sub').innerText = `Ref: $${p.ddr4_16gb.toLocaleString('es-AR')} ARS`;
+                document.getElementById('kpi-ddr5-16-sub').innerText = `Ref: $${p.ddr5_16gb.toLocaleString('es-AR')} ARS`;
+            }
+        }
+
+        function renderStoresTable() {
+            const tbody = document.getElementById('stores-table-body');
+            const usdRate = appData.dolar_referencia || 1400;
+            tbody.innerHTML = '';
+
+            const fmt = (val) => currentCurrency === 'ARS'
+                ? '$' + val.toLocaleString('es-AR')
+                : 'US$' + Math.round(val / usdRate);
+
+            appData.tiendas.forEach(store => {
+                const row = `
+                    <tr class="hover:bg-slate-800/40 transition">
+                        <td class="py-3.5 px-5 font-semibold text-white">${store.nombre}</td>
+                        <td class="py-3.5 px-5 text-right font-mono font-semibold text-violet-400">${fmt(store.ddr4_8gb)}</td>
+                        <td class="py-3.5 px-5 text-right font-mono font-semibold text-amber-400">${fmt(store.ddr5_8gb)}</td>
+                        <td class="py-3.5 px-5 text-right font-mono font-semibold text-sky-400">${fmt(store.ddr4_16gb)}</td>
+                        <td class="py-3.5 px-5 text-right font-mono font-semibold text-emerald-400">${fmt(store.ddr5_16gb)}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function initOrUpdateChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            const h = appData.historico;
+            const prefix = currentCurrency === 'ARS' ? 'ars_' : 'usd_';
+
+            const datasetsConfig = [
+                {
+                    label: 'DDR5 16GB (1x16GB)',
+                    data: h[prefix + 'ddr5_16gb'],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#0f172a',
+                    pointBorderWidth: 2,
+                    pointRadius: 4.5,
+                    pointHoverRadius: 7,
+                    segment: { borderDash: c => c.p0DataIndex >= 4 ? [6, 6] : undefined }
+                },
+                {
+                    label: 'DDR4 16GB (1x16GB)',
+                    data: h[prefix + 'ddr4_16gb'],
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                    borderWidth: 3,
+                    tension: 0.3,
+                    pointBackgroundColor: '#38bdf8',
+                    pointBorderColor: '#0f172a',
+                    pointBorderWidth: 2,
+                    pointRadius: 4.5,
+                    pointHoverRadius: 7,
+                    segment: { borderDash: c => c.p0DataIndex >= 4 ? [6, 6] : undefined }
+                },
+                {
+                    label: 'DDR5 8GB (1x8GB)',
+                    data: h[prefix + 'ddr5_8gb'],
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                    borderWidth: 2.5,
+                    tension: 0.3,
+                    pointBackgroundColor: '#f59e0b',
+                    pointBorderColor: '#0f172a',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    segment: { borderDash: c => c.p0DataIndex >= 4 ? [6, 6] : undefined }
+                },
+                {
+                    label: 'DDR4 8GB (1x8GB)',
+                    data: h[prefix + 'ddr4_8gb'],
+                    borderColor: '#a78bfa',
+                    backgroundColor: 'rgba(167, 139, 250, 0.08)',
+                    borderWidth: 2.5,
+                    tension: 0.3,
+                    pointBackgroundColor: '#a78bfa',
+                    pointBorderColor: '#0f172a',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    segment: { borderDash: c => c.p0DataIndex >= 4 ? [6, 6] : undefined }
+                }
+            ];
+
+            if (priceChart) {
+                priceChart.data.labels = h.labels;
+                datasetsConfig.forEach((ds, idx) => {
+                    priceChart.data.datasets[idx].data = ds.data;
+                });
+                priceChart.update();
+                return;
+            }
+
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: h.labels,
+                    datasets: datasetsConfig
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.96)',
+                            titleFont: { family: 'Inter', size: 13, weight: 'bold' },
+                            bodyFont: { family: 'Inter', size: 12 },
+                            footerFont: { family: 'Inter', size: 11, style: 'italic' },
+                            footerColor: '#94a3b8',
+                            padding: 12,
+                            cornerRadius: 10,
+                            borderColor: 'rgba(71, 85, 105, 0.5)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label ? context.dataset.label + ': ' : '';
+                                    const val = context.parsed.y;
+                                    if (val === null) return label;
+                                    return label + (currentCurrency === 'ARS'
+                                        ? '$' + val.toLocaleString('es-AR') + ' ARS'
+                                        : 'US$' + val.toLocaleString('en-US'));
+                                },
+                                footer: function(tooltipItems) {
+                                    const idx = tooltipItems[0].dataIndex;
+                                    return MACRO_NOTES[idx] || '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Año', color: '#94a3b8', font: { family: 'Inter', size: 12, weight: '600' } },
+                            grid: { color: 'rgba(51, 65, 85, 0.25)' },
+                            ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+                        },
+                        y: {
+                            title: { display: true, text: 'Precio por módulo individual', color: '#94a3b8', font: { family: 'Inter', size: 12, weight: '600' } },
+                            grid: { color: 'rgba(51, 65, 85, 0.25)' },
+                            ticks: {
+                                color: '#94a3b8',
+                                font: { family: 'Inter', size: 11 },
+                                callback: value => currentCurrency === 'USD' ? 'US$' + value : '$' + (value / 1000).toFixed(0) + 'k'
+                            }
+                        }
+                    }
+                }
+            });
+
+            renderCustomLegend();
+        }
+
+        function renderCustomLegend() {
+            const container = document.getElementById('custom-legend');
+            container.innerHTML = '';
+
+            priceChart.data.datasets.forEach((ds, index) => {
+                const isVisible = priceChart.isDatasetVisible(index);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `px-3 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-2 ${
+                    isVisible
+                        ? 'bg-slate-950 border-slate-700 text-slate-200 hover:border-slate-500'
+                        : 'bg-slate-950/40 border-slate-800/60 text-slate-500 line-through'
+                }`;
+                btn.innerHTML = `<span class="w-3 h-3 rounded-full" style="background-color: ${ds.borderColor}; opacity: ${isVisible ? 1 : 0.35}"></span>${ds.label}`;
+                btn.onclick = () => {
+                    priceChart.setDatasetVisibility(index, !priceChart.isDatasetVisible(index));
+                    priceChart.update();
+                    renderCustomLegend();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function setCurrency(currency) {
+            if (currentCurrency === currency) return;
+            currentCurrency = currency;
+
+            const btnArs = document.getElementById('btn-ars');
+            const btnUsd = document.getElementById('btn-usd');
+
+            if (currency === 'USD') {
+                btnUsd.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white transition';
+                btnArs.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition';
+            } else {
+                btnArs.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-md bg-indigo-600 text-white transition';
+                btnUsd.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition';
+            }
+
+            updateKPIValues();
+            renderStoresTable();
+            initOrUpdateChart();
+        }
+
+        function switchTab(tab) {
+            const viewDash = document.getElementById('view-dashboard');
+            const viewGh = document.getElementById('view-github');
+            const btnDash = document.getElementById('tab-btn-dashboard');
+            const btnGh = document.getElementById('tab-btn-github');
+
+            if (tab === 'dashboard') {
+                viewDash.classList.remove('hidden');
+                viewGh.classList.add('hidden');
+                btnDash.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition flex items-center gap-1.5';
+                btnGh.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5';
+            } else {
+                viewDash.classList.add('hidden');
+                viewGh.classList.remove('hidden');
+                btnGh.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition flex items-center gap-1.5';
+                btnDash.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition flex items-center gap-1.5';
+            }
+        }
+
+        function copyCode(elementId, message) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 2500);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
